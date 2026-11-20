@@ -84,8 +84,33 @@ def fetch_github_json(firm):
     return out
 
 
+def fetch_workday(firm):
+    """Workday career sites (Boeing, Northrop, GE Aerospace, RTX...). Find host/tenant/site
+    in the careers URL: https://<host>/en-US/<site>  -> tenant is the first part of host.
+    Searches each term in firm['search'] and pages through results (20 per page)."""
+    host, tenant, site = firm["host"], firm["tenant"], firm["site"]
+    api, out, ids = f"https://{host}/wday/cxs/{tenant}/{site}/jobs", [], set()
+    for term in firm.get("search", ["intern", "co-op"]):
+        offset, total = 0, None
+        while offset < 600:
+            r = requests.post(api, json={"appliedFacets": {}, "limit": 20, "offset": offset, "searchText": term},
+                              headers={**HEADERS, "Content-Type": "application/json"}, timeout=TIMEOUT)
+            r.raise_for_status()
+            d = r.json(); posts = d.get("jobPostings") or []
+            if total is None: total = d.get("total") or 0   # Workday only reports total on page 1
+            for p in posts:
+                path = p.get("externalPath") or ""
+                if not path or path in ids: continue
+                ids.add(path)
+                out.append({"id": path, "title": p.get("title") or "", "location": p.get("locationsText") or "",
+                            "url": f"https://{host}/en-US/{site}{path}", "content": ""})
+            offset += 20
+            if not posts or offset >= total: break
+    return out
+
+
 FETCHERS = {"greenhouse": fetch_greenhouse, "lever": fetch_lever, "ashby": fetch_ashby,
-            "workable": fetch_workable, "github_json": fetch_github_json}
+            "workable": fetch_workable, "github_json": fetch_github_json, "workday": fetch_workday}
 
 
 # --------------------------------- filters ---------------------------------- #
@@ -112,8 +137,9 @@ def is_relevant(job, f):
     title = job["title"].lower()
     if f.get("title_keywords") and not _title_is_internship(title, f["title_keywords"]): return _drop("no-intern-word", title)
     if f.get("title_require_any") and not any(_has_term(title, t) for t in f["title_require_any"]): return _drop("no-domain-match", title)
-    for bad in f.get("title_exclude", []):
-        if bad.lower() in title: return _drop(f"excluded:{bad}", title)
+    for bad in f.get("title_exclude", []):  # word-start match: "ai" must not hit "maintenance"
+        b = bad.lower()
+        if re.search(r"(?<!\w)" + re.escape(b) + (r"(?!\w)" if len(b) <= 3 else ""), title): return _drop(f"excluded:{bad}", title)
     # CYCLE CHECK. NEVER require the year in the title -- most companies omit it.
     # If the title names a year, it must be ours; else look in the body; if no
     # year appears anywhere, KEEP IT (a live intern posting is the next cycle).
