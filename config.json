@@ -8,7 +8,7 @@
     ],
     "title_require_any": [
       "mechanical",
-      "structural",
+      "structur",
       "manufactur",
       "aerospace",
       "aeronautic",
@@ -315,24 +315,55 @@
       "token": "flyzipline"
     },
     {
-      "name": "Commonwealth Fusion Systems",
-      "ats": "greenhouse",
-      "token": "cfsenergy"
-    },
-    {
       "name": "Relativity Space",
       "ats": "greenhouse",
       "token": "relativity"
     },
     {
-      "name": "Hadrian",
-      "ats": "lever",
-      "token": "hadrian"
-    },
-    {
       "name": "Saronic",
       "ats": "ashby",
       "token": "saronic"
+    },
+    {
+      "name": "Commonwealth Fusion Systems",
+      "ats": "lever",
+      "token": "cfsenergy"
+    },
+    {
+      "name": "Hadrian",
+      "ats": "ashby",
+      "token": "hadrian-automation"
+    },
+    {
+      "name": "Boston Dynamics",
+      "ats": "workday",
+      "host": "bostondynamics.wd1.myworkdayjobs.com",
+      "tenant": "bostondynamics",
+      "site": "Boston_Dynamics"
+    },
+    {
+      "name": "Blue Origin",
+      "ats": "workday",
+      "host": "blueorigin.wd5.myworkdayjobs.com",
+      "tenant": "blueorigin",
+      "site": "blueorigin"
+    },
+    {
+      "name": "Firefly Aerospace",
+      "ats": "workday",
+      "host": "fireflyspace.wd115.myworkdayjobs.com",
+      "tenant": "fireflyspace",
+      "site": "firefly"
     }
-  ]
+  ],
+  "autodiscover": {
+    "enabled": true,
+    "ats": [
+      "greenhouse",
+      "lever",
+      "ashby",
+      "workable"
+    ],
+    "exclude": []
+  }
 }
