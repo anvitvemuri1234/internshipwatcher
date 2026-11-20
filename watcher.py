@@ -250,7 +250,7 @@ def send_email(subject, html):
         try:
             with smtplib.SMTP_SSL(os.environ.get("SMTP_HOST", "smtp.gmail.com"), int(os.environ.get("SMTP_PORT", "465")), timeout=TIMEOUT) as s:
                 s.login(user, pw); s.sendmail(user, tos, msg.as_string())
-            print(f"Email sent to {tos}: {subject}"); return
+            print(f"Email sent to {len(tos)} address(es): {subject}"); return
         except (smtplib.SMTPException, OSError) as e:
             print(f" ! SMTP attempt {attempt+1}: {e}"); time.sleep(5 * (attempt + 1))
     raise RuntimeError("SMTP failed 3x")
